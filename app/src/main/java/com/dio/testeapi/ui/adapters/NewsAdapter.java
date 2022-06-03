@@ -1,5 +1,7 @@
 package com.dio.testeapi.ui.adapters;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -8,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.dio.testeapi.databinding.NewsItemBinding;
 import com.dio.testeapi.domain.News;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -32,6 +35,16 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ViewHolder> {
         News news = this.news.get(position);
         holder.biding.tvTitle.setText(news.getTitle());
         holder.biding.tvDescription.setText(news.getDescription());
+        Picasso.get().load(news.getImage()).fit().into(holder.biding.ivThumbnail);
+        holder.biding.btOpenLink.setOnClickListener(view -> {
+
+
+            Intent i = new Intent(Intent.ACTION_VIEW);
+            i.setData(Uri.parse(news.getLink()));
+            holder.itemView.getContext().startActivity(i);
+
+        });
+
 
     }
 

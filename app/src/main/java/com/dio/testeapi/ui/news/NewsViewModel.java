@@ -4,27 +4,56 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.dio.testeapi.data.remote.NewsApi;
 import com.dio.testeapi.domain.News;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
 public class NewsViewModel extends ViewModel {
 
-    private final MutableLiveData<List<News>> news;
+    private final MutableLiveData<List<News>> news =  new MutableLiveData<>();
+    private final NewsApi api;
 
     public NewsViewModel() {
-        this.news = new MutableLiveData<>();
 
-        //TODO Remover Mock de Notícias
-        List<News> news = new ArrayList<>();
-        news.add(new News("Spectacular!", "\"There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain...\""));
-        news.add(new News("Extra!", "\"There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain...\""));
-        news.add(new News("Unbelievable!", "\"There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain...\""));
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://gustavoamabile.github.io/news_api/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
 
-        this.news.setValue(news);
+        api = retrofit.create(NewsApi.class);
+        this.findNews();
+
+
     }
-        public LiveData<List<News>> getNews () {
+
+    private void findNews() {
+        api.getNews().enqueue(new Callback<List<News>>() {
+            @Override
+            public void onResponse(Call<List<News>> call, Response<List<News>> response) {
+                if(response.isSuccessful()){
+                    news.setValue(response.body());
+                } else {
+                    //TODO think of error treatment strategy
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<List<News>> call, Throwable t) {
+                //TODO think of error treatment strategy
+            }
+        });
+    }
+
+    public LiveData<List<News>> getNews () {
             return news;
         }
 }
